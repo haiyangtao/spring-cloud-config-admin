@@ -66,7 +66,9 @@ public class UrlMaker4Eureka extends BaseUrlMaker {
             homePageUrl = homePageUrl.substring(0, homePageUrl.length() - 1);
         }
 
-        return homePageUrl + env.getContextPath();
+        String serverUrl=homePageUrl + env.getContextPath();
+        log.info("server url:{}",serverUrl);
+        return serverUrl;
     }
 
     @Override

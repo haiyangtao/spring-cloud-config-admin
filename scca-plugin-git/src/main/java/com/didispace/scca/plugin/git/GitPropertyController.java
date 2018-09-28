@@ -146,7 +146,7 @@ public class GitPropertyController {
                 PropertiesUtils.printProperties(update, true);
 
                 // store update properties
-                PropertiesUtils.store(update, originPath, "Write by scca, more information see : https://github.com/dyc87112/spring-cloud-config-admin");
+                PropertiesUtils.store(update, originPath, "#配置");
             } else if (originPath.endsWith(".yaml") || originPath.endsWith(".yml")) {
                 // 把update内容写到originPath的YAML文件中
                 Map<String, Object> map = YamlUtils.propertiesToYamlMap(update);
@@ -158,7 +158,7 @@ public class GitPropertyController {
 
             // commit & push
             CmdRunner.execute("git add .", new File(projectInfo.getDir()));
-            CmdRunner.execute("git commit -m 'update'", new File(projectInfo.getDir()));
+            CmdRunner.execute("git commit -m '配置信息修改'", new File(projectInfo.getDir()));
             CmdRunner.execute("git push", new File(projectInfo.getDir()));
 
         } catch (Exception e) {

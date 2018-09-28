@@ -6,8 +6,8 @@ import com.didispace.scca.rest.domain.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,7 +23,7 @@ public class InitAdminAccountRunner implements CommandLineRunner {
 
     private static final String DEFAULT_ACCOUNT_USERNAME= "admin";
 
-    private static final String DEFAULT_ACCOUNT_PASSWORD= "spring4all";
+    private static final String DEFAULT_ACCOUNT_PASSWORD= "admin";
 
     private static final String DEFAULT_ACCOUNT_NICKNAME= "超级管理员";
 
@@ -36,8 +36,8 @@ public class InitAdminAccountRunner implements CommandLineRunner {
             defaultAdmin = new User();
             defaultAdmin.setUsername(DEFAULT_ACCOUNT_USERNAME);
             defaultAdmin.setNickname(DEFAULT_ACCOUNT_NICKNAME);
-            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            String encodedPassword = passwordEncoder.encode(DEFAULT_ACCOUNT_PASSWORD);
+            PasswordEncoder passwordEncoder = new Md5PasswordEncoder();
+            String encodedPassword = passwordEncoder.encodePassword(DEFAULT_ACCOUNT_PASSWORD,null);
             defaultAdmin.setPassword(encodedPassword);
             defaultAdmin.setRole(UserRoleEnum.ADMIN.getKey());
             userRepo.save(defaultAdmin);
