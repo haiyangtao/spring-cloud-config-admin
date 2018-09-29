@@ -5,11 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.didispace.scca.core.domain.Env;
 import com.didispace.scca.core.service.impl.BaseUrlMaker;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by 程序猿DD/翟永超 on 2018/4/24.
@@ -27,10 +30,36 @@ public class UrlMaker4Eureka extends BaseUrlMaker {
 //    private String getInstantsUrl = "/eureka/apps/{serviceName}";
 
     private RestTemplate restTemplate = new RestTemplate();
-
+    
+    
+    @Value("${security.basic.enabled}")
+    private boolean eurekaSecurity;
+    
+    @Value("${eureka.user.name}")
+    private String eurekaUserName;
+    
+    
+    @Value("${eureka.user.password}")
+    private String eurekaUserPassword;
+    
+    
+    
+    
+    private  HttpHeaders getHeaders(){
+        String plainCredentials=eurekaUserName+":"+eurekaUserPassword;
+        String base64Credentials = new String(Base64.getEncoder().encode(plainCredentials.getBytes()));
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + base64Credentials);
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        return headers;
+    }
 
     @Override
     public String configServerBaseUrl(String envName) {
+    
+    
+        
         Env env = envRepo.findByName(envName);
 
         if (env.getRegistryAddress() == null || env.getRegistryAddress().isEmpty()) {
@@ -43,9 +72,17 @@ public class UrlMaker4Eureka extends BaseUrlMaker {
         url = url.replaceAll("//", "/").replaceFirst(":/", "://");
 
         log.info("Get config server instances url : " + url);
+        String rStr=null;
+        if(eurekaSecurity){
+            HttpEntity<String> entity = new HttpEntity<>( getHeaders());
+             rStr=restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody().toString();
+        }else{
+            // 访问eureka接口获取一个可以访问的实例
+             rStr = restTemplate.getForObject(url,  String.class).toString();
+        }
 
-        // 访问eureka接口获取一个可以访问的实例
-        String rStr = restTemplate.getForObject(url, String.class);
+      
+     
         JSONObject response = JSON.parseObject(rStr);
 
         String homePageUrl = null;
